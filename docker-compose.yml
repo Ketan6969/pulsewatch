@@ -1,0 +1,83 @@
+# One-shot Pulsewatch stack:  docker compose up -d --build
+# Then open http://localhost:8080
+#
+# Services: PostgreSQL, the Pulsewatch server (API + dashboard + checks +
+# alerting) and an agent that monitors the Docker host itself.
+# Secrets default to development values; override them via a .env file
+# (see .env.example) before exposing this anywhere.
+
+name: pulsewatch
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pulsewatch
+      POSTGRES_USER: pulsewatch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pulsewatch}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulsewatch -d pulsewatch"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  server:
+    build:
+      context: .
+      target: server
+    image: pulsewatch/server:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PULSEWATCH_DATABASE_URL: postgres://pulsewatch:${POSTGRES_PASSWORD:-pulsewatch}@postgres:5432/pulsewatch?sslmode=disable
+      PULSEWATCH_AGENT_TOKEN: ${PULSEWATCH_AGENT_TOKEN:-change-me-agent-token-0123456789}
+      PULSEWATCH_API_TOKEN: ${PULSEWATCH_API_TOKEN:-}
+      PULSEWATCH_RETENTION: ${PULSEWATCH_RETENTION:-168h}
+      PULSEWATCH_LOG_LEVEL: ${PULSEWATCH_LOG_LEVEL:-info}
+    # Bound to localhost by default: the API is unauthenticated unless
+    # PULSEWATCH_API_TOKEN is set. Set PULSEWATCH_BIND=0.0.0.0 to expose it.
+    ports:
+      - "${PULSEWATCH_BIND:-127.0.0.1}:${PULSEWATCH_PORT:-8080}:8080"
+    # The image has no shell or curl; the binary probes its own /readyz.
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/pulsewatch", "healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    stop_grace_period: 20s
+
+  agent:
+    build:
+      context: .
+      target: agent
+    image: pulsewatch/agent:local
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    # Host namespaces + read-only host mounts so the agent reports the
+    # Docker host, not its own container.
+    network_mode: host
+    pid: host
+    environment:
+      PULSEWATCH_SERVER_URL: http://localhost:${PULSEWATCH_PORT:-8080}
+      PULSEWATCH_AGENT_TOKEN: ${PULSEWATCH_AGENT_TOKEN:-change-me-agent-token-0123456789}
+      PULSEWATCH_AGENT_INTERVAL: 15s
+      HOST_PROC: /host/proc
+      HOST_SYS: /host/sys
+      HOST_ROOT: /hostfs
+      HOST_ETC: /hostfs/etc
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/hostfs:ro
+    stop_grace_period: 10s
+
+volumes:
+  pgdata:

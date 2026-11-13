@@ -1,0 +1,22 @@
+# Development dependencies only. Run the server and dashboard from source:
+#   docker compose -f docker-compose.dev.yml up -d
+#   make run        # Go server on :8080
+#   make web-dev    # Vite dev server on :5173 (proxies /api to :8080)
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pulsewatch
+      POSTGRES_PASSWORD: pulsewatch
+      POSTGRES_DB: pulsewatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./deploy/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+      - pgdata-dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulsewatch"]
+      interval: 5s
+      retries: 20
+volumes:
+  pgdata-dev:

@@ -28,7 +28,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	log.Info("agent starting", "server", cfg.ServerURL, "interval", cfg.Interval, "version", version)
+	log.Info("agent starting", "server", cfg.ServerURL, "interval", cfg.Interval.String(), "version", version)
 	a := agent.New(cfg.ServerURL, cfg.AgentToken, cfg.Interval, sysmon.NewCollector(cfg.Name, version, cfg.TopProcs), log)
 	if err := a.Run(ctx); err != nil {
 		log.Error("agent stopped", "err", err)

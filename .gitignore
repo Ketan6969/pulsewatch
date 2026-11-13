@@ -4,3 +4,5 @@
 .env
 *.log
 coverage.out
+.sandbox-ca.crt
+.Dockerfile.sandbox

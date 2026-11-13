@@ -1,0 +1,136 @@
+/*
+ * Pulsewatch design tokens. Components must reference these semantic tokens,
+ * never raw colors. Light is the default; dark is opt-in via data-theme.
+ */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces */
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f2f5;
+  --color-surface-hover: #f5f7fa;
+  --color-border: #dde1e7;
+  --color-border-strong: #c6ccd5;
+
+  /* Text */
+  --color-text: #1f2937;
+  --color-text-2: #667085;
+  --color-text-muted: #8a93a3;
+  --color-text-inverse: #ffffff;
+
+  /* Semantic */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-subtle: #eaf0fd;
+  --color-success: #16a34a;
+  --color-success-subtle: #e8f6ed;
+  --color-warning: #d97706;
+  --color-warning-subtle: #fdf3e6;
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fdecec;
+  --color-info: #0891b2;
+  --color-info-subtle: #e6f4f8;
+  --color-neutral: #8a93a3;
+  --color-neutral-subtle: #eef0f3;
+
+  /* Text-safe variants of status colors (>= 4.5:1 on surface) */
+  --color-success-text: #15803d;
+  --color-warning-text: #b45309;
+  --color-danger-text: #b91c1c;
+  --color-info-text: #0e7490;
+
+  /* Chart series (categorical, validated for CVD separation on #fff) */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #6250d6;
+  --chart-grid: #eceef2;
+  --chart-axis: #8a93a3;
+
+  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px #2563eb80;
+  --shadow-popover: 0 4px 16px rgba(16, 24, 40, 0.12), 0 1px 3px rgba(16, 24, 40, 0.08);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #111318;
+  --color-surface: #191d24;
+  --color-surface-2: #222833;
+  --color-surface-hover: #1f242d;
+  --color-border: #303744;
+  --color-border-strong: #3d4656;
+
+  --color-text: #e5e7eb;
+  --color-text-2: #9ca3af;
+  --color-text-muted: #7a8394;
+  --color-text-inverse: #111318;
+
+  --color-primary: #60a5fa;
+  --color-primary-hover: #93c5fd;
+  --color-primary-subtle: #1c2a40;
+  --color-success: #22c55e;
+  --color-success-subtle: #15291e;
+  --color-warning: #f59e0b;
+  --color-warning-subtle: #2e2412;
+  --color-danger: #f87171;
+  --color-danger-subtle: #321c1f;
+  --color-info: #22d3ee;
+  --color-info-subtle: #142a31;
+  --color-neutral: #7a8394;
+  --color-neutral-subtle: #262c36;
+
+  --color-success-text: #4ade80;
+  --color-warning-text: #fbbf24;
+  --color-danger-text: #fca5a5;
+  --color-info-text: #67e8f9;
+
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #9085e9;
+  --chart-grid: #262c36;
+  --chart-axis: #7a8394;
+
+  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px #60a5fa99;
+  --shadow-popover: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+:root {
+  /* Typography */
+  --font-sans: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --radius-sm: 3px;
+  --radius: 4px;
+  --radius-lg: 6px;
+
+  --control-h: 30px;
+  --row-h: 34px;
+  --sidebar-w: 216px;
+  --sidebar-w-collapsed: 52px;
+  --topbar-h: 52px;
+
+  --transition: 120ms ease;
+}

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -23,6 +24,11 @@ import (
 )
 
 func main() {
+	// "pulsewatch healthcheck" probes the local readiness endpoint; used by
+	// container health checks in images that ship without curl or a shell.
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		os.Exit(healthcheck())
+	}
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "pulsewatch:", err)
 		os.Exit(1)
@@ -119,6 +125,30 @@ func run() error {
 		log.Warn("shutdown timed out waiting for workers")
 	}
 	return nil
+}
+
+func healthcheck() int {
+	addr := os.Getenv("PULSEWATCH_HTTP_ADDR")
+	if addr == "" {
+		addr = ":8080"
+	}
+	_, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "healthcheck: bad PULSEWATCH_HTTP_ADDR:", err)
+		return 1
+	}
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get("http://127.0.0.1:" + port + "/readyz")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "healthcheck:", err)
+		return 1
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		fmt.Fprintln(os.Stderr, "healthcheck: status", resp.StatusCode)
+		return 1
+	}
+	return 0
 }
 
 // openStore retries the initial connection so the server tolerates the
